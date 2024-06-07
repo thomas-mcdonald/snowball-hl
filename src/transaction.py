@@ -31,7 +31,8 @@ class Transaction:
     return None
 
   def quantity(self):
-    return Decimal(self.row['Quantity'])
+    cleaned_str = self.row['Quantity'].replace(',', '')
+    return Decimal(cleaned_str)
 
   def unit_cost(self):
     return Decimal(self.row['Unit cost (p)'])
