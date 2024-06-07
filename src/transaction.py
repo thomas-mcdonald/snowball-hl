@@ -115,13 +115,20 @@ class BuyTransaction(Transaction):
     return self.unit_cost() / 100
 
   def symbol(self, config):
-    description = self['Description']
-    match = re.search(r'^(.*?)\s*\(', description)
-    if match is None:
-      raise ValueError(f"Could not extract symbol from description {description}")
-
-    override = next((c for c in config['companies'] if c['name'] == match.group(1)), None)
+    company_string = self._extract_symbol_from_description()
+    override = next((c for c in config['companies'] if c['name'] == company_string), None)
     if override:
       return override['isin']
     else:
-      raise ValueError(f'Could not find ISIN mapping for "{match.group(1)}". Add mapping to config.json and run again.')
+      raise ValueError(f'Could not find ISIN mapping for "{company_string}". Add mapping to config.json and run again.')
+
+  def _extract_symbol_from_description(self):
+    description = self['Description']
+    match = re.search(r'^(.*?)\s*\(', description)
+    if match is None:
+      # handle non-denominated stock names
+      decimal = r'\d*\.?\d*'
+      match = re.search(rf'^(.*?)\s*{decimal}\s*@\s*{decimal}', description)
+    if match is None:
+      raise ValueError(f"Could not extract symbol from description {description}")
+    return match.group(1)
