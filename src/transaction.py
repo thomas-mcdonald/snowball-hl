@@ -18,10 +18,17 @@ class Transaction:
       return CashInTransaction(row)
     elif re.match(r'^B\d+$', reference):
       return BuyTransaction(row)
+    elif reference == 'INTEREST':
+      return InterestTransaction(row)
+    else:
+      raise ValueError(f"Unknown transaction type {reference}")
 
   def date(self):
     date = self.row['Trade date']
     return datetime.datetime.strptime(date, '%d/%m/%Y').strftime('%Y-%m-%d')
+
+  def note(self):
+    return None
 
   def quantity(self):
     return Decimal(self.row['Quantity'])
@@ -66,6 +73,28 @@ class FeeTransaction(Transaction):
 
   def quantity(self):
     return 0
+
+  def symbol(self, _):
+    return 'GBP'
+
+class InterestTransaction(Transaction):
+  def __init__(self, row):
+    super().__init__(row)
+
+  def event(self):
+    return 'Cash_Gain'
+
+  def feetax(self):
+    return 0
+
+  def note(self):
+    return self['Description']
+
+  def price(self):
+    return 1
+
+  def quantity(self):
+    return self.value()
 
   def symbol(self, _):
     return 'GBP'

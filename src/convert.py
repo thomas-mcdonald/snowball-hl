@@ -3,6 +3,7 @@ import re
 import json
 from decimal import Decimal
 from transaction import Transaction
+import os
 
 def convert(input_file, output_file, config):
   with open(input_file, 'r', encoding='ISO-8859-1') as f:
@@ -26,6 +27,7 @@ def convert_row(row):
     'Date': txn.date(),
     'Event': txn.event(),
     'FeeTax': txn.feetax(),
+    'Note': txn.note(),
     'Price': txn.price(),
     'Quantity': txn.quantity(),
     'Symbol': txn.symbol(config),
@@ -34,4 +36,10 @@ def convert_row(row):
 with open('config.json', 'r') as f:
   config = json.load(f)
 
-convert('input/portfolio-summary (1).csv', 'output/portfolio-summary.csv', config)
+input_dir = 'input/'
+output_dir = 'output/'
+
+for filename in os.listdir(input_dir):
+  input_file = os.path.join(input_dir, filename)
+  output_file = os.path.join(output_dir, filename)
+  convert(input_file, output_file, config)
