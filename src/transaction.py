@@ -11,13 +11,13 @@ class Transaction:
 
   @classmethod
   def from_row(cls, row):
-    reference = row['Reference']
+    reference = row['Reference'].upper()
     if reference == 'MANAGE FEE':
       return FeeTransaction(row)
-    elif reference == 'Card Web':
+    elif reference == 'CARD WEB' or reference == 'FPC':
       return CashInTransaction(row)
-    elif re.match(r'^B\d+$', reference):
-      return BuyTransaction(row)
+    elif re.match(r'^B\d+$', reference) or re.match(r'^S\d+$', reference):
+      return ShareTransaction(row)
     elif reference == 'INTEREST':
       return InterestTransaction(row)
     else:
@@ -100,12 +100,15 @@ class InterestTransaction(Transaction):
   def symbol(self, _):
     return 'GBP'
 
-class BuyTransaction(Transaction):
+class ShareTransaction(Transaction):
   def __init__(self, row):
     super().__init__(row)
 
   def event(self):
-    return 'Buy'
+    if self['Reference'][0] == 'S':
+      return 'Sell'
+    else:
+      return 'Buy'
 
   def feetax(self):
     return (self.value() * -1) - (self.unit_cost() * self.quantity() / 100).quantize(Decimal('0.01'))
