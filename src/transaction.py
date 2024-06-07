@@ -48,7 +48,7 @@ class CashInTransaction(Transaction):
   def quantity(self):
     return self.value()
 
-  def symbol(self):
+  def symbol(self, _):
     return 'GBP'
 
 class FeeTransaction(Transaction):
@@ -67,7 +67,7 @@ class FeeTransaction(Transaction):
   def quantity(self):
     return 0
 
-  def symbol(self):
+  def symbol(self, _):
     return 'GBP'
 
 class BuyTransaction(Transaction):
@@ -84,10 +84,14 @@ class BuyTransaction(Transaction):
     # todo: may need special casing for UK / non-UK stocks
     return self.unit_cost() / 100
 
-  def symbol(self):
+  def symbol(self, config):
     description = self['Description']
     match = re.search(r'^(.*?)\s*\(', description)
     if match:
-      return match.group(1)
+      override = next(c for c in config['companies'] if c['name'] == match.group(1))
+      if override:
+        return override['isin']
+      else:
+        return match.group(1)
     else:
       raise ValueError(f"Could not extract symbol from description {description}")

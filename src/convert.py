@@ -1,9 +1,10 @@
 import csv
 import re
+import json
 from decimal import Decimal
 from transaction import Transaction
 
-def convert(input_file, output_file):
+def convert(input_file, output_file, config):
   with open(input_file, 'r', encoding='ISO-8859-1') as f:
     # HL exports have 5 lines of metadata before the actual data
     for _ in range(5):
@@ -27,7 +28,10 @@ def convert_row(row):
     'FeeTax': txn.feetax(),
     'Price': txn.price(),
     'Quantity': txn.quantity(),
-    'Symbol': txn.symbol(),
+    'Symbol': txn.symbol(config),
   }
 
-convert('input/portfolio-summary (1).csv', 'output/portfolio-summary.csv')
+with open('config.json', 'r') as f:
+  config = json.load(f)
+
+convert('input/portfolio-summary (1).csv', 'output/portfolio-summary.csv', config)
