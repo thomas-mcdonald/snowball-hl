@@ -1,6 +1,7 @@
 import csv
 import datetime
 import re
+from decimal import Decimal
 from transaction import Transaction
 
 def convert(input_file, output_file):
@@ -32,7 +33,7 @@ def convert_row(row):
 
 def map_hl_data_to_feetax(data):
   if re.match(r'^B\d+$', data['Reference']):
-    return data.value() - (data.unit_cost() * data.quantity() * 100)
+    return (data.value() * -1) - (data.unit_cost() * data.quantity() / 100).quantize(Decimal('0.01'))
   return 0
 
 def map_hl_data_to_symbol(data):
