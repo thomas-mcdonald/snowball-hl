@@ -1,6 +1,7 @@
 import csv
 import datetime
 import re
+from transaction import Transaction
 
 def convert(input_file, output_file):
   with open(input_file, 'r', encoding='ISO-8859-1') as f:
@@ -18,19 +19,20 @@ def convert(input_file, output_file):
     writer.writerows(output)
 
 def convert_row(row):
+  txn = Transaction(row)
   return {
     'Currency': 'GBP',
     'Date': map_hl_date_to_date(row['Trade date']),
     'Event': map_hl_reference_to_event(row['Reference']),
-    'FeeTax': map_hl_data_to_feetax(row),
-    'Price': map_hl_data_to_price(row),
-    'Quantity': map_hl_data_to_quantity(row),
-    'Symbol': map_hl_data_to_symbol(row),
+    'FeeTax': map_hl_data_to_feetax(txn),
+    'Price': map_hl_data_to_price(txn),
+    'Quantity': map_hl_data_to_quantity(txn),
+    'Symbol': map_hl_data_to_symbol(txn),
   }
 
 def map_hl_data_to_feetax(data):
   if re.match(r'^B\d+$', data['Reference']):
-    return data['Value (£)'] - (data['Unit cost (p)'] * data['Quantity'] * 100)
+    return data.value() - (data.unit_cost() * data.quantity() * 100)
   return 0
 
 def map_hl_data_to_symbol(data):
