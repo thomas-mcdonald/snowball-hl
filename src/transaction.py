@@ -118,10 +118,11 @@ class BuyTransaction(Transaction):
     description = self['Description']
     match = re.search(r'^(.*?)\s*\(', description)
     if match:
-      override = next(c for c in config['companies'] if c['name'] == match.group(1))
+      override = next((c for c in config['companies'] if c['name'] == match.group(1)), None)
       if override:
         return override['isin']
       else:
+        print(f"Could not find ISIN mapping for {match.group(1)}. Validate and confirm symbol before uploading to Snowball.")
         return match.group(1)
     else:
       raise ValueError(f"Could not extract symbol from description {description}")
