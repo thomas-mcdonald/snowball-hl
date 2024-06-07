@@ -1,0 +1,12 @@
+{
+  "companies": [{
+    "name": "Vanguard FTSE Developed World ex-UK Equity Index Accumulation",
+    "isin": "GB00B59G4Q73"
+  }, {
+    "name": "Vanguard UK Government Bond Index Accumulation",
+    "isin": "IE00B1S75374"
+  }, {
+    "name": "Vanguard FTSE UK All Share Index Accumulation",
+    "isin": "GB00B3X7QG63"
+  }]
+}
