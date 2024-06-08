@@ -2,7 +2,7 @@ import csv
 import re
 import json
 from decimal import Decimal
-from transaction import Transaction
+from transaction import ShareTransaction, Transaction
 import os
 
 def convert(input_file, output_file, config):
@@ -12,6 +12,18 @@ def convert(input_file, output_file, config):
       f.readline()
     reader = csv.DictReader(f)
     data = [Transaction.from_row(row) for row in reader]
+
+  # Validate configuration exists for all known companies in data
+  missing_companies = set()
+  for txn in data:
+    if type(txn) is ShareTransaction:
+      company_string = txn._extract_symbol_from_description()
+      company_config = txn._find_company_config(config)
+      if company_config is None:
+        missing_companies.add(company_string)
+
+  if missing_companies:
+    raise ValueError(f'Could not find configuration for companies: {missing_companies}. Add mapping to config.json and run again.')
 
   output = [convert_txn(txn) for txn in data]
 
