@@ -11,17 +11,16 @@ def convert(input_file, output_file, config):
     for _ in range(5):
       f.readline()
     reader = csv.DictReader(f)
-    data = [row for row in reader]
+    data = [Transaction.from_row(row) for row in reader]
 
-  output = [convert_row(row) for row in data]
+  output = [convert_txn(txn) for txn in data]
 
   with open(output_file, 'w', newline='') as f:
     writer = csv.DictWriter(f, fieldnames=output[0].keys())
     writer.writeheader()
     writer.writerows(output)
 
-def convert_row(row):
-  txn = Transaction.from_row(row)
+def convert_txn(txn):
   return {
     'Currency': 'GBP',
     'Date': txn.date(),
