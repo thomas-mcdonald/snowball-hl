@@ -27,6 +27,9 @@ class Transaction:
     date = self.row['Trade date']
     return datetime.datetime.strptime(date, '%d/%m/%Y').strftime('%Y-%m-%d')
 
+  def market(self, config):
+    return None
+
   def note(self):
     return None
 
@@ -117,13 +120,23 @@ class ShareTransaction(Transaction):
     # todo: may need special casing for UK / non-UK stocks
     return self.unit_cost() / 100
 
+  def market(self, config):
+    company_config = self._find_company_config(config)
+    if company_config:
+      return company_config.get('market', None)
+    else:
+      raise ValueError(f'Could not find market mapping for "{company_string}". Add mapping to config.json and run again.')
+
   def symbol(self, config):
-    company_string = self._extract_symbol_from_description()
-    override = next((c for c in config['companies'] if c['name'] == company_string), None)
-    if override:
-      return override['isin']
+    company_config = self._find_company_config(config)
+    if company_config:
+      return company_config.get('isin', None) or company_config['ticker']
     else:
       raise ValueError(f'Could not find ISIN mapping for "{company_string}". Add mapping to config.json and run again.')
+
+  def _find_company_config(self, config):
+    company_string = self._extract_symbol_from_description()
+    return next((c for c in config['companies'] if c['name'] == company_string), None)
 
   def _extract_symbol_from_description(self):
     description = self['Description']

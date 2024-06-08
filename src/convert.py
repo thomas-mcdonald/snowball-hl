@@ -27,6 +27,7 @@ def convert_row(row):
     'Date': txn.date(),
     'Event': txn.event(),
     'FeeTax': txn.feetax(),
+    'Market': txn.market(config),
     'Note': txn.note(),
     'Price': txn.price(),
     'Quantity': txn.quantity(),
