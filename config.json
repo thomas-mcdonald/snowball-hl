@@ -8,5 +8,9 @@
   }, {
     "name": "Vanguard FTSE UK All Share Index Accumulation",
     "isin": "GB00B3X7QG63"
+  }, {
+    "name": "Shopify Inc NPV",
+    "ticker": "SHOP",
+    "market": "NYSE"
   }]
 }
